@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import Navbar from "../../components/navbar";
 import Wrapper from "../../components/wrapper";
 import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
+// import toast from "react-hot-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -36,19 +36,20 @@ const Create = () => {
 
   const navigate = useNavigate();
 
-  const create = ({ name, company, role }: z.infer<typeof createSchema>) => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {}, 2000);
-    });
-  };
+  // const create = ({ name, company, role }: z.infer<typeof createSchema>) => {
+  //   return new Promise((resolve, reject) => {
+  //     setTimeout(() => {}, 2000);
+  //   });
+  // };
 
   const handleCreateSubmit = (values: z.infer<typeof createSchema>) => {
-    const checkData = create(values);
-    toast.promise(checkData, {
-      loading: "loading...",
-      success: "Berhasil login!",
-      error: "Username / Password tidak benar!",
-    });
+    console.log(values);
+    // const checkData = create(values);
+    // toast.promise(checkData, {
+    //   loading: "loading...",
+    //   success: "Berhasil login!",
+    //   error: "Username / Password tidak benar!",
+    // });
   };
 
   useEffect(() => {
