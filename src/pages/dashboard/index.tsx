@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Navbar from "../../components/navbar";
 import Wrapper from "../../components/wrapper";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { User } from "../../constant/data";
+import { User, users } from "../../constant/data";
 import Modal from "../../components/modal";
 
 const Index = () => {
@@ -13,7 +13,7 @@ const Index = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [users, setUsers] = useState<User[] | null>(null);
+  const [userData, setUserData] = useState<User[] | null>(null);
 
   const navigate = useNavigate();
 
@@ -29,6 +29,17 @@ const Index = () => {
     setSearchTerm(searchParams.get("search") || "");
     setSelectedRole(searchParams.get("role") || "All");
   }, [navigate, searchParams]);
+
+  useEffect(() => {
+    const getUserData = localStorage.getItem("userData");
+    if (getUserData !== null) {
+      const formattedUsers = JSON.parse(getUserData);
+      setUserData(formattedUsers);
+    } else {
+      localStorage.setItem("userData", JSON.stringify(users));
+      setUserData(users);
+    }
+  }, []);
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const search = event.target.value;
@@ -47,8 +58,8 @@ const Index = () => {
   };
 
   const filteredUsers =
-    users &&
-    users.filter((user) => {
+    userData &&
+    userData.filter((user) => {
       const matchesSearch = user.name
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
@@ -76,8 +87,8 @@ const Index = () => {
 
   const handleModalConfirm = () => {
     const filteredUser =
-      users?.filter((user) => user.id != selectedUser?.id) || null;
-    setUsers(filteredUser);
+      userData?.filter((user) => user.id != selectedUser?.id) || null;
+    setUserData(filteredUser);
     localStorage.removeItem("userData");
     localStorage.setItem("userData", JSON.stringify(filteredUser));
 
@@ -91,14 +102,6 @@ const Index = () => {
   };
 
   useEffect(() => {
-    const getUserData = localStorage.getItem("userData");
-    if (getUserData) {
-      const formattedUsers = JSON.parse(getUserData);
-      setUsers(formattedUsers);
-    } else {
-      localStorage.setItem("userData", JSON.stringify(users));
-      setUsers(users);
-    }
     if (currentPage > totalPages) {
       setCurrentPage(totalPages);
     }
@@ -130,12 +133,14 @@ const Index = () => {
                   className="px-4 py-2 border bg-transparent border-gray-300 dark:border-gray-700 rounded-lg text-sm"
                 >
                   <option value="All">All Roles</option>
-                  {users &&
-                    [...new Set(users.map((user) => user.role))].map((role) => (
-                      <option key={role} value={role}>
-                        {role}
-                      </option>
-                    ))}
+                  {userData &&
+                    [...new Set(userData.map((user) => user.role))].map(
+                      (role) => (
+                        <option key={role} value={role}>
+                          {role}
+                        </option>
+                      )
+                    )}
                 </select>
               </div>
               <Link to={"/create/user"}>
