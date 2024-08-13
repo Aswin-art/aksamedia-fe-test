@@ -74,14 +74,14 @@ const Profile = () => {
           <div className="mb-5">
             <label
               htmlFor="name"
-              className="block mb-2 text-sm font-medium text-gray-900"
+              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
             >
               Nama
             </label>
             <input
               type="name"
               id="name"
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+              className="bg-gray-50 border border-gray-300 text-gray-900 dark:text-white bg-transparent text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
               placeholder="agus supriyadi"
               required
               {...register("name")}
@@ -96,7 +96,7 @@ const Profile = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="border border-blue-500 rounded-lg px-4 py-2 hover:bg-blue-50"
+              className="border border-blue-500 rounded-lg px-4 py-2 hover:bg-blue-900/10"
             >
               {isSubmitting ? "loading..." : "Submit"}
             </button>

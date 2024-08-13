@@ -121,13 +121,13 @@ const Index = () => {
                   placeholder="Search by name..."
                   value={searchTerm}
                   onChange={handleSearch}
-                  className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg text-sm"
+                  className="px-4 py-2 border bg-transparent border-gray-300 dark:border-gray-700 rounded-lg text-sm"
                 />
 
                 <select
                   value={selectedRole}
                   onChange={handleFilterRole}
-                  className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg text-sm"
+                  className="px-4 py-2 border bg-transparent border-gray-300 dark:border-gray-700 rounded-lg text-sm"
                 >
                   <option value="All">All Roles</option>
                   {users &&
