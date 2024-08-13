@@ -27,13 +27,13 @@ const Modal: React.FC<ModalProps> = ({
             onClick={onClose}
             className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg"
           >
-            Cancel
+            Tidak
           </button>
           <button
             onClick={onConfirm}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg"
+            className="px-4 py-2 bg-red-500 text-white rounded-lg"
           >
-            Confirm
+            Yakin
           </button>
         </div>
       </div>

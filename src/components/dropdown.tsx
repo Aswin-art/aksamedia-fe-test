@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Dropdown = () => {
   const [isOpen, setIsopen] = useState(false);
@@ -48,6 +48,11 @@ const Dropdown = () => {
       {isOpen && (
         <div className="absolute right-0 mt-2 w-48 bg-transparent rounded-lg border border-blue-500 z-20">
           <ul className="rounded-lg">
+            <Link to={"/profile"}>
+              <li className="cursor-pointer px-4 py-2 text-gray-800 hover:bg-blue-900/10 dark:text-white rounded-lg">
+                Profile
+              </li>
+            </Link>
             <li
               onClick={handleLogout}
               className="cursor-pointer px-4 py-2 text-gray-800 hover:bg-blue-900/10 dark:text-white rounded-lg"

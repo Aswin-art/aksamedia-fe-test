@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "../../components/navbar";
 import Wrapper from "../../components/wrapper";
 import { useNavigate } from "react-router-dom";
@@ -6,7 +6,8 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { users } from "../../constant/data";
+import { User } from "../../constant/data";
+import toast from "react-hot-toast";
 
 const createSchema = z.object({
   name: z.string().min(5, {
@@ -36,29 +37,61 @@ const Create = () => {
 
   const navigate = useNavigate();
 
-  // const create = ({ name, company, role }: z.infer<typeof createSchema>) => {
-  //   return new Promise((resolve, reject) => {
-  //     setTimeout(() => {}, 2000);
-  //   });
-  // };
+  const [users, setUsers] = useState<User[] | null>(null);
+
+  const create = ({ name, company, role }: z.infer<typeof createSchema>) => {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const userData = localStorage.getItem("userData");
+        if (userData) {
+          const newUser = {
+            id: userData?.length + 1,
+            name,
+            company,
+            role,
+          };
+
+          const formattedUserData = JSON.parse(userData);
+
+          const updatedUserData = [...formattedUserData, newUser];
+
+          localStorage.removeItem("userData");
+          localStorage.setItem("userData", JSON.stringify(updatedUserData));
+
+          resolve(true);
+
+          setTimeout(() => {
+            navigate("/");
+          }, 2500);
+        }
+
+        reject(true);
+      }, 2000);
+    });
+  };
 
   const handleCreateSubmit = (values: z.infer<typeof createSchema>) => {
     console.log(values);
-    // const checkData = create(values);
-    // toast.promise(checkData, {
-    //   loading: "loading...",
-    //   success: "Berhasil login!",
-    //   error: "Username / Password tidak benar!",
-    // });
+    const checkData = create(values);
+    toast.promise(checkData, {
+      loading: "loading...",
+      success: "Pengguna telah dibuat!",
+      error: "Gagal membuat pengguna!",
+    });
   };
 
   useEffect(() => {
     const getUsername = localStorage.getItem("username");
+    const getUserData = localStorage.getItem("userData");
+
+    if (getUserData) {
+      setUsers(JSON.parse(getUserData));
+    }
 
     if (!getUsername) {
       navigate("/login");
     }
-  }, []);
+  }, [navigate]);
   return (
     <main className="h-[100vh] dark:bg-gray-950 dark:text-white">
       <Navbar />
@@ -119,11 +152,12 @@ const Create = () => {
               {...register("role")}
             >
               <option value="">Pilih Posisi</option>
-              {users.map((user) => (
-                <option key={user.id} value={user.role}>
-                  {user.role}
-                </option>
-              ))}
+              {users &&
+                users.map((user) => (
+                  <option key={user.id} value={user.role}>
+                    {user.role}
+                  </option>
+                ))}
             </select>
             {errors.role?.message && (
               <p className="text-xs text-red-500 mt-2">

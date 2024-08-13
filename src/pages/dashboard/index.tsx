@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Navbar from "../../components/navbar";
 import Wrapper from "../../components/wrapper";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { User, users } from "../../constant/data";
+import { User } from "../../constant/data";
 import Modal from "../../components/modal";
 
 const Index = () => {
@@ -12,10 +12,8 @@ const Index = () => {
   const [selectedRole, setSelectedRole] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalAction, setModalAction] = useState<"update" | "delete" | null>(
-    null
-  );
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [users, setUsers] = useState<User[] | null>(null);
 
   const navigate = useNavigate();
 
@@ -36,7 +34,7 @@ const Index = () => {
     const search = event.target.value;
     setSearchTerm(search);
     searchParams.set("search", search);
-    searchParams.set("page", "1"); // Reset to page 1 on search
+    searchParams.set("page", "1");
     setSearchParams(searchParams);
   };
 
@@ -44,31 +42,25 @@ const Index = () => {
     const role = event.target.value;
     setSelectedRole(role);
     searchParams.set("role", role);
-    searchParams.set("page", "1"); // Reset to page 1 on filter change
+    searchParams.set("page", "1");
     setSearchParams(searchParams);
   };
 
-  const filteredUsers = users.filter((user) => {
-    const matchesSearch = user.name
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    const matchesRole = selectedRole === "All" || user.role === selectedRole;
-    return matchesSearch && matchesRole;
-  });
+  const filteredUsers =
+    users &&
+    users.filter((user) => {
+      const matchesSearch = user.name
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      const matchesRole = selectedRole === "All" || user.role === selectedRole;
+      return matchesSearch && matchesRole;
+    });
 
-  const totalPages = Math.ceil(filteredUsers.length / 5);
+  const totalPages = Math.ceil(filteredUsers ? filteredUsers.length / 5 : 1);
   const validPage = Math.max(1, Math.min(currentPage, totalPages));
 
-  useEffect(() => {
-    if (currentPage > totalPages) {
-      setCurrentPage(totalPages);
-    }
-  }, [currentPage, totalPages]);
-
-  const currentPageUsers = filteredUsers.slice(
-    (validPage - 1) * 5,
-    validPage * 5
-  );
+  const currentPageUsers =
+    filteredUsers && filteredUsers.slice((validPage - 1) * 5, validPage * 5);
 
   const handlePageChange = (page: number) => {
     if (page < 1 || page > totalPages) return;
@@ -77,28 +69,40 @@ const Index = () => {
     setSearchParams(searchParams);
   };
 
-  const handleActionClick = (user: User, action: "update" | "delete") => {
+  const handleActionClick = (user: User) => {
     setSelectedUser(user);
-    setModalAction(action);
     setModalOpen(true);
   };
 
   const handleModalConfirm = () => {
-    if (modalAction === "delete") {
-      console.log("Delete user:", selectedUser);
-    } else if (modalAction === "update") {
-      console.log("Update user:", selectedUser);
-    }
+    const filteredUser =
+      users?.filter((user) => user.id != selectedUser?.id) || null;
+    setUsers(filteredUser);
+    localStorage.removeItem("userData");
+    localStorage.setItem("userData", JSON.stringify(filteredUser));
+
     setModalOpen(false);
     setSelectedUser(null);
-    setModalAction(null);
   };
 
   const handleModalClose = () => {
     setModalOpen(false);
     setSelectedUser(null);
-    setModalAction(null);
   };
+
+  useEffect(() => {
+    const getUserData = localStorage.getItem("userData");
+    if (getUserData) {
+      const formattedUsers = JSON.parse(getUserData);
+      setUsers(formattedUsers);
+    } else {
+      localStorage.setItem("userData", JSON.stringify(users));
+      setUsers(users);
+    }
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
 
   return (
     <main className="h-[100vh] dark:bg-gray-950 dark:text-white">
@@ -126,11 +130,12 @@ const Index = () => {
                   className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg text-sm"
                 >
                   <option value="All">All Roles</option>
-                  {[...new Set(users.map((user) => user.role))].map((role) => (
-                    <option key={role} value={role}>
-                      {role}
-                    </option>
-                  ))}
+                  {users &&
+                    [...new Set(users.map((user) => user.role))].map((role) => (
+                      <option key={role} value={role}>
+                        {role}
+                      </option>
+                    ))}
                 </select>
               </div>
               <Link to={"/create/user"}>
@@ -159,53 +164,53 @@ const Index = () => {
                     scope="col"
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                   >
-                    Email
+                    Nama Perusahaan
                   </th>
                   <th
                     scope="col"
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                   >
-                    Role
+                    Jabatan
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                   >
                     Action
                   </th>
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-                {currentPageUsers.map((user) => (
-                  <tr key={user.id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-200">
-                      {user.id}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                      {user.name}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                      {user.company}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                      {user.role}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                      <button
-                        onClick={() => handleActionClick(user, "update")}
-                        className="px-4 py-2 bg-blue-500 text-white rounded-lg mr-2"
-                      >
-                        Update
-                      </button>
-                      <button
-                        onClick={() => handleActionClick(user, "delete")}
-                        className="px-4 py-2 bg-red-500 text-white rounded-lg"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {currentPageUsers &&
+                  currentPageUsers.map((user) => (
+                    <tr key={user.id}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-200">
+                        {user.id}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                        {user.name}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                        {user.company}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                        {user.role}
+                      </td>
+                      <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                        <Link to={"/update/user/" + user.id}>
+                          <button className="px-4 py-2 bg-blue-500 text-white rounded-lg mr-2">
+                            Update
+                          </button>
+                        </Link>
+                        <button
+                          onClick={() => handleActionClick(user)}
+                          className="px-4 py-2 bg-red-500 text-white rounded-lg"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
 
@@ -235,16 +240,8 @@ const Index = () => {
           isOpen={modalOpen}
           onClose={handleModalClose}
           onConfirm={handleModalConfirm}
-          title={
-            modalAction === "delete"
-              ? "Delete Confirmation"
-              : "Update Confirmation"
-          }
-          message={
-            modalAction === "delete"
-              ? `Are you sure you want to delete user ${selectedUser?.name}?`
-              : `Are you sure you want to update user ${selectedUser?.name}?`
-          }
+          title={"Hapus Pengguna"}
+          message={`Yakin akan menghapus pengguna ${selectedUser?.name}?`}
         />
       </Wrapper>
     </main>

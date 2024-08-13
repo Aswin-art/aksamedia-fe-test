@@ -7,6 +7,8 @@ import { Toaster } from "react-hot-toast";
 import Loading from "./components/loading.tsx";
 import Index from "./pages/dashboard/index.tsx";
 import Create from "./pages/dashboard/create.tsx";
+import Update from "./pages/dashboard/update.tsx";
+import Profile from "./pages/auth/profile.tsx";
 
 const router = createBrowserRouter([
   {
@@ -19,11 +21,15 @@ const router = createBrowserRouter([
   },
   {
     path: "/update/user/:id",
-    element: <Create />,
+    element: <Update />,
   },
   {
     path: "/login",
     element: <Login />,
+  },
+  {
+    path: "/profile",
+    element: <Profile />,
   },
 ]);
 

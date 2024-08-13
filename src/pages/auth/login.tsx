@@ -58,7 +58,7 @@ const Login = () => {
     if (getUsername) {
       navigate("/");
     }
-  }, []);
+  }, [navigate]);
   return (
     <main className="h-[100vh] w-[100vw] flex items-center justify-center">
       <div className="flex flex-col gap-4">
